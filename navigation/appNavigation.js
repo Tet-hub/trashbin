@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { View } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import SignUpScreen from "../screens/SignUpScreen";
+import AddBinScreen from "../screens/AddBinScreen";
+import NotificationScreen from "../screens/NotificationScreen";
+import MenuScreen from "../screens/MenuScreen";
 import useAuth from "../hooks/useAuth";
 import LoadingIndicator from "../components/LoadingIndicator";
 
@@ -34,31 +38,61 @@ export default function AppNavigation() {
     <NavigationContainer>
       {appReady ? (
         <Stack.Navigator>
-          {user ? (
+          <>
+            <Stack.Screen
+              name="Welcome"
+              options={{ headerShown: false }}
+              component={WelcomeScreen}
+            />
+            <Stack.Screen
+              name="Login"
+              options={{ headerShown: false }}
+              component={LoginScreen}
+            />
+            <Stack.Screen
+              name="SignUp"
+              options={{ headerShown: false }}
+              component={SignUpScreen}
+            />
+            <Stack.Screen
+              name="AddBin"
+              options={{
+                headerTitle: () => <View></View>,
+                headerStyle: {
+                  backgroundColor: "#092635",
+                },
+                headerTintColor: "#9EC8B9",
+              }}
+              component={AddBinScreen}
+            />
+            <Stack.Screen
+              name="Notification"
+              options={{
+                headerTitle: () => <View></View>,
+                headerStyle: {
+                  backgroundColor: "#092635",
+                },
+                headerTintColor: "#9EC8B9",
+              }}
+              component={NotificationScreen}
+            />
+            <Stack.Screen
+              name="Menu"
+              options={{
+                headerTitle: () => <View></View>,
+                headerStyle: {
+                  backgroundColor: "#092635",
+                },
+                headerTintColor: "#9EC8B9",
+              }}
+              component={MenuScreen}
+            />
             <Stack.Screen
               name="Home"
               options={{ headerShown: false }}
               component={HomeScreen}
             />
-          ) : (
-            <>
-              <Stack.Screen
-                name="Welcome"
-                options={{ headerShown: false }}
-                component={WelcomeScreen}
-              />
-              <Stack.Screen
-                name="Login"
-                options={{ headerShown: false }}
-                component={LoginScreen}
-              />
-              <Stack.Screen
-                name="SignUp"
-                options={{ headerShown: false }}
-                component={SignUpScreen}
-              />
-            </>
-          )}
+          </>
         </Stack.Navigator>
       ) : (
         <LoadingIndicator />

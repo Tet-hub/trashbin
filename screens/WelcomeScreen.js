@@ -37,6 +37,9 @@ export default function WelcomeScreen() {
             <TouchableOpacity onPress={() => navigation.navigate("Login")}>
               <Text className={`font-semibold text-[#749BC2]`}>Log In</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+              <Text className={`font-semibold text-[#749BC2]`}>Home</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
