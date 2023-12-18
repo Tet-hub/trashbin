@@ -15,12 +15,9 @@ export default function AppNavigation() {
   const [loading, setLoading] = useState(true);
   const [appReady, setAppReady] = useState(false);
 
+  //check the user authentication
   useEffect(() => {
-    if (user !== null) {
-      setLoading(false);
-    } else {
-      setLoading(false);
-    }
+    setLoading(user !== null ? false : false);
   }, [user]);
 
   useEffect(() => {
