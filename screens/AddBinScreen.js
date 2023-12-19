@@ -22,8 +22,37 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Entypo from "react-native-vector-icons/Entypo";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import { useNavigation } from "@react-navigation/native";
+import {
+  NavigationHelpersContext,
+  useNavigation,
+} from "@react-navigation/native";
 export default function AddBinScreen() {
+  const [trashbinId, setTrashbinId] = useState("");
+  const [trashbinName, setTrashbinName] = useState("");
+  const [trashbinLoc, setTrashbinLoc] = useState("");
+  const currentUserUid = getCurrentUserUid();
+  const navigation = useNavigation();
+
+  console.log("currentUserUid: ", currentUserUid);
+  // Function to add data to the database
+  const handleAddData = async () => {
+    try {
+      const trashbinCollection = collection(db, "trashbin");
+
+      const newData = {
+        trashbinId: trashbinId,
+        userId: currentUserUid,
+        trashbinName: trashbinName,
+        trashbinLocation: trashbinLoc,
+      };
+
+      await addDoc(trashbinCollection, newData);
+      navigation.navigate("Home");
+    } catch (error) {
+      console.error("Error adding data: ", error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="white" barStyle="dark-content" />
@@ -33,6 +62,7 @@ export default function AddBinScreen() {
           <Text style={styles.textLabel}>Bin Name: </Text>
           <View style={styles.binInputView}>
             <TextInput
+              onChangeText={(text) => setTrashbinName(text)}
               style={styles.placeholderStyle}
               placeholder="Enter bin name..."
               autoCapitalize="sentences"
@@ -43,6 +73,7 @@ export default function AddBinScreen() {
           <Text style={styles.textLabel}>Bin ID: </Text>
           <View style={styles.binInputViewID}>
             <TextInput
+              onChangeText={(text) => setTrashbinId(text)}
               style={styles.placeholderStyle}
               placeholder="Enter bin id..."
               autoCapitalize="sentences"
@@ -53,13 +84,14 @@ export default function AddBinScreen() {
           <Text style={styles.textLabel}>Location: </Text>
           <View style={styles.binInputViewLoc}>
             <TextInput
+              onChangeText={(text) => setTrashbinLoc(text)}
               style={styles.placeholderStyle}
               placeholder="Enter bin location..."
               autoCapitalize="sentences"
             />
           </View>
         </View>
-        <TouchableOpacity style={styles.addButtonTO}>
+        <TouchableOpacity style={styles.addButtonTO} onPress={handleAddData}>
           <Text style={styles.addBinButton}>Add Bin</Text>
         </TouchableOpacity>
       </View>
