@@ -12,13 +12,45 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [Emailerror, setEmailError] = useState("");
+  const [PasswordError, setPasswordError] = useState("");
 
   const handleSubmit = async () => {
+    setError("");
+    setEmailError("");
+    setPasswordError("");
+
+    if (email.trim() === "") {
+      setEmailError("Please input your email");
+      return;
+    }
+
+    if (!email.trim().includes("@") || !email.trim().includes(".com")) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    if (password.trim() === "") {
+      setPasswordError("Please input your password");
+      return;
+    }
+
+    if (password.trim().length < 6) {
+      setPasswordError("Password should be at least 6 characters");
+      return;
+    }
+
     if (email && password) {
       try {
         await signInWithEmailAndPassword(auth, email, password);
       } catch (err) {
-        console.log("Signup error:", err.message);
+        if (err.code) {
+          setError(err.code);
+        } else {
+          setError("Signup error");
+          console.log("Signup error:", err.message);
+        }
       }
     }
   };
@@ -48,22 +80,27 @@ export default function LoginScreen() {
         style={{ borderTopLeftRadius: 50, borderTopRightRadius: 50 }}
         className="flex-1 bg-white px-8 pt-8"
       >
+        <Text className="text-red-700 ml-4 p font-bold text-center">
+          {error}
+        </Text>
         <View className="form space-y-2">
           <Text className="text-gray-700 ml-4">Email Address</Text>
           <TextInput
-            className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-3"
-            placeholder="email"
+            className="p-4 bg-gray-100 text-gray-700 rounded-2xl"
+            placeholder="Enter Email"
             value={email}
             onChangeText={(value) => setEmail(value)}
           />
+          <Text className="text-red-700 ml-4 p font-bold">{Emailerror}</Text>
           <Text className="text-gray-700 ml-4">Password</Text>
           <TextInput
-            className="p-4 bg-gray-100 text-gray-700 rounded-2xl"
+            className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-2"
             secureTextEntry
-            placeholder="password"
+            placeholder="Enter Password"
             value={password}
             onChangeText={(value) => setPassword(value)}
           />
+          <Text className="text-red-700 ml-4 p font-bold">{PasswordError}</Text>
           <TouchableOpacity
             className="py-3 bg-[#91C8E4] rounded-xl"
             onPress={handleSubmit}
