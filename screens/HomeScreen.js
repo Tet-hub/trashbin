@@ -25,7 +25,7 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useNavigation } from "@react-navigation/native";
 export default function HomeScreen() {
   const navigation = useNavigation();
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [trashbinId, setTrashbinId] = useState("");
   const [trashbinName, setTrashbinName] = useState("");
@@ -33,12 +33,8 @@ export default function HomeScreen() {
   const [trashbinData, setTrashbinData] = useState([]);
 
   const currentUserUid = getCurrentUserUid();
-  console.log("currentUserUid: ", currentUserUid);
+  // console.log("currentUserUid: ", currentUserUid);
 
-  const handleLogout = async () => {
-    await signOut(auth);
-  };
-  //get the trashbinId from firestore
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -52,7 +48,13 @@ export default function HomeScreen() {
         const fetchedData = [];
         querySnapshot.forEach((doc) => {
           const trashbinData = doc.data();
-          fetchedData.push(trashbinData.trashbinId);
+          fetchedData.push({
+            id: doc.id,
+            userId: trashbinData.userId,
+            trashbinName: trashbinData.trashbinName,
+            trashbinLocation: trashbinData.trashbinLocation,
+            trashbinId: trashbinData.trashbinId,
+          });
         });
 
         if (fetchedData.length > 0) {
@@ -66,18 +68,29 @@ export default function HomeScreen() {
     fetchData();
   }, [currentUserUid]);
 
-  //get the data from realtime database base on the trashbinId from firestore
   useEffect(() => {
     const fetchDataForId = (id) => {
       const dbRealtime = getDatabase();
-      const dataRef = ref(dbRealtime, id);
+      const dataRef = ref(
+        dbRealtime,
+        `trashbin/${id.trashbinId}/capacityLevel`
+      );
 
       onValue(dataRef, (snapshot) => {
-        const fetchedData = snapshot.val();
-        setData((prevData) => ({
-          ...prevData,
-          [id]: fetchedData,
-        }));
+        const capacityLevel = snapshot.val();
+        // console.log("Capacity Level:", capacityLevel);
+        setTrashbinData((prevData) => {
+          const updatedData = prevData.map((bin) => {
+            if (bin.id === id.id) {
+              return {
+                ...bin,
+                capacityLevel: capacityLevel,
+              };
+            }
+            return bin;
+          });
+          return updatedData;
+        });
       });
     };
 
@@ -86,33 +99,17 @@ export default function HomeScreen() {
     });
 
     return () => {
+      // Clean up the listeners when the component unmounts or when trashbinData changes
       trashbinData.forEach((id) => {
         const dbRealtime = getDatabase();
-        const dataRef = ref(dbRealtime, id);
+        const dataRef = ref(
+          dbRealtime,
+          `trashbin/${id.trashbinId}/capacityLevel`
+        );
         off(dataRef);
       });
     };
   }, [trashbinData]);
-
-  // Function to add data to the database
-  const handleAddData = async () => {
-    try {
-      const trashbinCollection = collection(db, "trashbin");
-
-      const newData = {
-        trashbinId: trashbinId,
-        userId: currentUserUid,
-        trashbinName: trashbinName,
-        trashbinLocation: trashbinLoc,
-      };
-
-      await addDoc(trashbinCollection, newData);
-
-      setIsModalVisible(false);
-    } catch (error) {
-      console.error("Error adding data: ", error);
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -164,55 +161,62 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
           style={{ marginBottom: 20, marginTop: 10 }}
         >
-          {[...Array(3)].map((_, index) => (
-            <View key={index} style={styles.binContainer}>
-              <View style={styles.bigBinView}>
-                <FontAwesome5 name="trash" size={135} color="#092635" />
-                <View style={styles.percentageView}>
-                  <Text style={styles.percentageText}>100%</Text>
+          {trashbinData &&
+            trashbinData.map((binData, index) => (
+              <View key={index} style={styles.binContainer}>
+                <View style={styles.bigBinView}>
+                  <FontAwesome5 name="trash" size={135} color="#092635" />
+                  <View style={styles.percentageView}>
+                    <Text style={styles.percentageText}>100%</Text>
+                  </View>
+                </View>
+                <View style={styles.insideBinContainer}>
+                  <Text style={styles.binNameText}>{binData.trashbinName}</Text>
+                  <View style={styles.labelDataView}>
+                    <Text style={styles.idLabel}>Bin ID:</Text>
+                    <View style={styles.iconDataView}>
+                      <MaterialCommunityIcons
+                        name="page-layout-sidebar-left"
+                        size={20}
+                        color="black"
+                        style={{ marginRight: 2 }}
+                      />
+                      <Text style={styles.idData}>{binData.trashbinId}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.labelDataView}>
+                    <Text style={styles.idLabel}>Location:</Text>
+                    <View style={styles.iconDataView}>
+                      <Entypo
+                        name="location"
+                        size={20}
+                        color="black"
+                        style={{ marginRight: 2 }}
+                      />
+                      <Text style={styles.idData}>
+                        {binData.trashbinLocation}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.labelDataView}>
+                    <Text style={styles.idLabel}>Capacity Level:</Text>
+                    <View style={styles.iconDataView}>
+                      <MaterialIcons
+                        name="storage"
+                        size={20}
+                        color="black"
+                        style={{ marginRight: 2 }}
+                      />
+                      {binData.capacityLevel !== undefined && (
+                        <Text style={styles.idDataCapacityText}>
+                          {binData.capacityLevel}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
                 </View>
               </View>
-              <View style={styles.insideBinContainer}>
-                <Text style={styles.binNameText}>Garbage Bin 1</Text>
-                <View style={styles.labelDataView}>
-                  <Text style={styles.idLabel}>Bin ID:</Text>
-                  <View style={styles.iconDataView}>
-                    <MaterialCommunityIcons
-                      name="page-layout-sidebar-left"
-                      size={20}
-                      color="black"
-                      style={{ marginRight: 2 }}
-                    />
-                    <Text style={styles.idData}>aZ1g2bddeo928snbas</Text>
-                  </View>
-                </View>
-                <View style={styles.labelDataView}>
-                  <Text style={styles.idLabel}>Location:</Text>
-                  <View style={styles.iconDataView}>
-                    <Entypo
-                      name="location"
-                      size={20}
-                      color="black"
-                      style={{ marginRight: 2 }}
-                    />
-                    <Text style={styles.idData}>Near Frans</Text>
-                  </View>
-                </View>
-                <View style={styles.labelDataView}>
-                  <Text style={styles.idLabel}>Capacity Level:</Text>
-                  <View style={styles.iconDataView}>
-                    <MaterialIcons
-                      name="storage"
-                      size={20}
-                      color="black"
-                      style={{ marginRight: 2 }}
-                    />
-                    <Text style={styles.idDataCapacityText}>Full</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          ))}
+            ))}
         </ScrollView>
       </View>
     </SafeAreaView>
