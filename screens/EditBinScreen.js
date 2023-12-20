@@ -10,22 +10,12 @@ import {
   ToastAndroid,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { signOut } from "firebase/auth";
 import { auth, db } from "../config/firebase";
-import { getDatabase, ref, child, get } from "firebase/database";
 import { getCurrentUserUid } from "../service/getCurrentUserId";
 import { collection, query, doc, updateDoc } from "firebase/firestore";
-import Icon from "react-native-vector-icons/FontAwesome";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import Entypo from "react-native-vector-icons/Entypo";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import {
-  NavigationHelpersContext,
-  useNavigation,
-} from "@react-navigation/native";
+import LoadingIndicator from "../components/LoadingIndicator";
+import { useNavigation } from "@react-navigation/native";
+
 export default function EditBinScreen({ route }) {
   const [trashbinDocId, setTrashbinDocId] = useState(
     route.params?.binDocId ?? ""
@@ -35,7 +25,7 @@ export default function EditBinScreen({ route }) {
   const [trashbinLoc, setTrashbinLoc] = useState(
     route.params?.binLocation ?? ""
   );
-
+  const [isLoading, setIsLoading] = useState(false);
   const currentUserUid = getCurrentUserUid();
   const navigation = useNavigation();
   const [errorText, setErrorText] = useState("");
@@ -50,6 +40,7 @@ export default function EditBinScreen({ route }) {
   };
   // Function to add data to the database
   const handleSaveData = async () => {
+    setIsLoading(true);
     try {
       // Validation for empty bin name
       if (trashbinName.trim() === "") {
@@ -74,56 +65,66 @@ export default function EditBinScreen({ route }) {
       navigation.navigate("Home");
     } catch (error) {
       console.error("Error adding data: ", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="white" barStyle="dark-content" />
-      <Text style={styles.addBinText}>Edit Bin</Text>
-      {errorText !== "" && <Text style={styles.errorText}>{errorText}</Text>}
-      <View style={styles.bodyDiv}>
-        <View style={styles.inputView}>
-          <Text style={styles.textLabel}>Bin Name: </Text>
-          <View style={styles.binInputView}>
-            <TextInput
-              value={trashbinName}
-              onChangeText={(text) => setTrashbinName(text)}
-              style={styles.placeholderStyle}
-              placeholder="Enter bin name..."
-              autoCapitalize="sentences"
-            />
+      {isLoading ? (
+        <LoadingIndicator />
+      ) : (
+        <>
+          <StatusBar backgroundColor="white" barStyle="dark-content" />
+          <Text style={styles.errorText}>{errorText !== "" && errorText}</Text>
+          <View style={styles.bodyDiv} className="mt-8">
+            <View style={styles.inputView}>
+              <Text style={styles.textLabel}>Bin ID: </Text>
+              <View style={styles.binInputViewID}>
+                <TextInput
+                  value={trashbinId}
+                  editable={false}
+                  onChangeText={(text) => setTrashbinId(text)}
+                  style={styles.placeholderStyle}
+                  placeholder="Enter bin id..."
+                  autoCapitalize="sentences"
+                />
+              </View>
+            </View>
+            <View style={styles.inputView}>
+              <Text style={styles.textLabel}>Bin Name: </Text>
+              <View style={styles.binInputView}>
+                <TextInput
+                  value={trashbinName}
+                  onChangeText={(text) => setTrashbinName(text)}
+                  style={styles.placeholderStyle}
+                  placeholder="Enter bin name..."
+                  autoCapitalize="sentences"
+                />
+              </View>
+            </View>
+            <View style={styles.inputView}>
+              <Text style={styles.textLabel}>Location: </Text>
+              <View style={styles.binInputViewLoc}>
+                <TextInput
+                  value={trashbinLoc}
+                  onChangeText={(text) => setTrashbinLoc(text)}
+                  style={styles.placeholderStyle}
+                  placeholder="Enter bin location..."
+                  autoCapitalize="sentences"
+                />
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.addButtonTO}
+              onPress={handleSaveData}
+            >
+              <Text style={styles.addBinButton}>SAVE</Text>
+            </TouchableOpacity>
           </View>
-        </View>
-        <View style={styles.inputView}>
-          <Text style={styles.textLabel}>Bin ID: </Text>
-          <View style={styles.binInputViewID}>
-            <TextInput
-              value={trashbinId}
-              editable={false}
-              onChangeText={(text) => setTrashbinId(text)}
-              style={styles.placeholderStyle}
-              placeholder="Enter bin id..."
-              autoCapitalize="sentences"
-            />
-          </View>
-        </View>
-        <View style={styles.inputView}>
-          <Text style={styles.textLabel}>Location: </Text>
-          <View style={styles.binInputViewLoc}>
-            <TextInput
-              value={trashbinLoc}
-              onChangeText={(text) => setTrashbinLoc(text)}
-              style={styles.placeholderStyle}
-              placeholder="Enter bin location..."
-              autoCapitalize="sentences"
-            />
-          </View>
-        </View>
-        <TouchableOpacity style={styles.addButtonTO} onPress={handleSaveData}>
-          <Text style={styles.addBinButton}>SAVE</Text>
-        </TouchableOpacity>
-      </View>
+        </>
+      )}
     </SafeAreaView>
   );
 }
@@ -181,7 +182,7 @@ const styles = StyleSheet.create({
   addButtonTO: {
     alignSelf: "center",
     marginTop: 40,
-    backgroundColor: "#D9D9D9",
+    backgroundColor: "#B6C4B6",
     width: "90%",
   },
   addBinButton: {
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
   errorText: {
     textAlign: "center",
     color: "#FF0000",
-    marginBottom: 20,
+    marginTop: 20,
     fontSize: 16,
   },
 });

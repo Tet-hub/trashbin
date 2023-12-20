@@ -27,6 +27,7 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { getCurrentUserUid } from "../service/getCurrentUserId";
+import LoadingIndicator from "../components/LoadingIndicator";
 
 export default function MenuScreen() {
   const userId = getCurrentUserUid();
@@ -40,10 +41,12 @@ export default function MenuScreen() {
   const [number, onChangeNumber] = useState(`${trashbinData.phoneNumber}`);
   const [Email, onChangeEmail] = useState(`${trashbinData.email}`);
   const [profilePicture, setProfilePicture] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const updateUserAccount = async () => {
+    setLoading(true);
     setError("");
-
     if (Name.trim() === "") {
       setError("Please input name");
       return;
@@ -102,6 +105,8 @@ export default function MenuScreen() {
     } catch (error) {
       console.error("An error occurred:", error);
       setError("An error occurred while updating user information");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,10 +119,12 @@ export default function MenuScreen() {
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          // You can use this to monitor the progress of the upload if you want
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+          setUploadProgress(progress);
         },
         (error) => {
-          // Handle unsuccessful uploads
           reject(error);
         },
         () => {
@@ -165,6 +172,7 @@ export default function MenuScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const trashbinCollection = collection(db, "users");
         const q = query(trashbinCollection, where("__name__", "==", userId));
@@ -195,6 +203,8 @@ export default function MenuScreen() {
         }
       } catch (error) {
         console.error("Error fetching data: ", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -203,73 +213,82 @@ export default function MenuScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.bodyDiv}>
-        <View style={{ bottom: 140 }}>
-          <TouchableOpacity onPress={openImagePickerAsync}>
-            <View className="flex flex-row justify-center align-middle">
-              {selectedImage ? (
-                <Image
-                  source={{ uri: selectedImage }}
-                  style={styles.profilePicture}
-                />
-              ) : profilePicture ? (
-                <Image
-                  source={{ uri: profilePicture }}
-                  style={styles.profilePicture}
-                />
-              ) : (
-                <Image
-                  source={require("../assets/images/default-profile-picture.png")}
-                  style={styles.profilePicture}
-                />
-              )}
+      {loading ? (
+        <LoadingIndicator />
+      ) : (
+        <>
+          <View style={styles.bodyDiv}>
+            <View style={{ bottom: 140 }}>
+              <TouchableOpacity onPress={openImagePickerAsync}>
+                <View className="flex flex-row justify-center align-middle">
+                  {selectedImage ? (
+                    <Image
+                      source={{ uri: selectedImage }}
+                      style={styles.profilePicture}
+                    />
+                  ) : profilePicture ? (
+                    <Image
+                      source={{ uri: profilePicture }}
+                      style={styles.profilePicture}
+                    />
+                  ) : (
+                    <Image
+                      source={require("../assets/images/default-profile-picture.png")}
+                      style={styles.profilePicture}
+                    />
+                  )}
+                </View>
+              </TouchableOpacity>
+
+              <Text className="text-red-700 font-bold text-center my-3">
+                {error}
+              </Text>
+              <Text style={styles.Label}>Email Address</Text>
+              <TextInput
+                style={styles.input}
+                value={Email}
+                editable={false}
+                placeholder="Enter Email"
+                className="font-normal text-black"
+              />
+
+              <StatusBar backgroundColor="white" barStyle="dark-content" />
+              <Text style={styles.Label}>Name</Text>
+              <TextInput
+                style={styles.input}
+                value={Name}
+                onChangeText={(value) => onChangeText(value)}
+                placeholder="Enter Name"
+              />
+              <Text style={styles.Label}>Phone Number</Text>
+              <TextInput
+                style={styles.input}
+                value={number}
+                onChangeText={(value) => onChangeNumber(value)}
+                placeholder="Enter Number"
+                keyboardType={
+                  Platform.OS === "android" ? "numeric" : "number-pad"
+                }
+              />
+
+              <TouchableOpacity
+                style={styles.addDiv}
+                onPress={updateUserAccount}
+                className="justify-center ml-4 mr-5"
+              >
+                <Text className="font-bold">Update Account</Text>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-          <Text className="text-red-700 font-bold text-center my-3">
-            {error}
-          </Text>
-          <Text style={styles.Label}>Email Address</Text>
-          <TextInput
-            style={styles.input}
-            value={Email}
-            editable={false}
-            placeholder="Enter Email"
-            className="font-normal text-black"
-          />
-
-          <StatusBar backgroundColor="white" barStyle="dark-content" />
-          <Text style={styles.Label}>Name</Text>
-          <TextInput
-            style={styles.input}
-            value={Name}
-            onChangeText={(value) => onChangeText(value)}
-            placeholder="Enter Name"
-          />
-          <Text style={styles.Label}>Phone Number</Text>
-          <TextInput
-            style={styles.input}
-            value={number}
-            onChangeText={(value) => onChangeNumber(value)}
-            placeholder="Enter Number"
-            keyboardType={Platform.OS === "android" ? "numeric" : "number-pad"}
-          />
-
-          <TouchableOpacity
-            style={styles.addDiv}
-            onPress={updateUserAccount}
-            className="justify-center ml-4 mr-5"
-          >
-            <Text className="font-bold">Update Account</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#304D30",
+    backgroundColor: "#EEF0E5",
     flex: 1,
     position: "relative",
   },

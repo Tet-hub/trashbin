@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
@@ -30,7 +30,7 @@ export default function AppNavigation() {
   useEffect(() => {
     setTimeout(() => {
       setAppReady(true);
-    }, 2000);
+    }, 5000);
   }, []);
 
   if (loading) {
@@ -55,7 +55,11 @@ export default function AppNavigation() {
               <Stack.Screen
                 name="AddBin"
                 options={{
-                  headerTitle: () => <View></View>,
+                  headerTitle: () => (
+                    <Text className="text-[#EEF0E5] text-xl font-semibold">
+                      Add Bin
+                    </Text>
+                  ),
                   headerStyle: {
                     backgroundColor: "#163020",
                   },
@@ -66,11 +70,15 @@ export default function AppNavigation() {
               <Stack.Screen
                 name="EditBin"
                 options={{
-                  headerTitle: () => <View></View>,
+                  headerTitle: () => (
+                    <Text className="text-[#EEF0E5] text-xl font-semibold">
+                      Edit Bin
+                    </Text>
+                  ),
                   headerStyle: {
-                    backgroundColor: "#092635",
+                    backgroundColor: "#163020",
                   },
-                  headerTintColor: "#9EC8B9",
+                  headerTintColor: "#EEF0E5",
                 }}
                 component={EditBinScreen}
               />

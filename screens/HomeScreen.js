@@ -31,22 +31,20 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Entypo from "react-native-vector-icons/Entypo";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useNavigation } from "@react-navigation/native";
+import LoadingIndicator from "../components/LoadingIndicator";
+
 export default function HomeScreen() {
   const navigation = useNavigation();
-  const [data, setData] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [trashbinId, setTrashbinId] = useState("");
-  const [trashbinName, setTrashbinName] = useState("");
-  const [trashbinLoc, setTrashbinLoc] = useState("");
   const [trashbinData, setTrashbinData] = useState([]);
-
   const currentUserUid = getCurrentUserUid();
   //console.log("currentUserUid: ", currentUserUid);
-
   const [debouncedTrashbinData, setDebouncedTrashbinData] =
     useState(trashbinData);
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
+    setLoading(true);
     const trashbinCollection = collection(db, "trashbin");
     const q = query(trashbinCollection, where("userId", "==", currentUserUid));
 
@@ -57,8 +55,8 @@ export default function HomeScreen() {
       }));
       setTrashbinData(updatedData);
       setDebouncedTrashbinData(updatedData);
+      setLoading(false);
     });
-
     return () => {
       // Unsubscribe from the snapshot listener when the component unmounts
       unsubscribe();
@@ -129,27 +127,15 @@ export default function HomeScreen() {
       <StatusBar backgroundColor="white" barStyle="dark-content" />
       <View style={styles.topBarView}>
         <View style={styles.topIconView}>
-          <Icon
-            name="trash"
-            size={25}
-            color="#9EC8B9"
-            style={{ marginRight: 15 }}
-          />
           <Text style={styles.titleText1}>KON</Text>
           <Text style={styles.titleText2}>BIN</Text>
-          <Text style={styles.titleText3}>I</Text>
+          <Text style={styles.titleText3}>I-</Text>
+          <Text style={styles.titleText2}>SEN</Text>
+          <Text style={styles.titleText3}>SE</Text>
         </View>
         <View style={styles.topIconView}>
-          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
-            <Ionicons
-              name="notifications"
-              size={25}
-              color="#9EC8B9"
-              style={{ marginRight: 15 }}
-            />
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
-            <Ionicons name="menu" size={30} color="#9EC8B9" />
+            <Ionicons name="person-circle-outline" size={30} color="#9EC8B9" />
           </TouchableOpacity>
         </View>
       </View>
@@ -170,101 +156,117 @@ export default function HomeScreen() {
           />
           <Text style={styles.addBinText}>ADD BIN</Text>
         </TouchableOpacity>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          style={{ marginBottom: 20, marginTop: 10 }}
-        >
-          {debouncedTrashbinData &&
-            debouncedTrashbinData.map((binData, index) => (
-              <View key={index} style={styles.binContainer}>
-                <View style={styles.bigBinView}>
-                  <FontAwesome5 name="trash" size={135} color="#092635" />
-                  <View style={styles.percentageView}>
-                    <Text style={styles.percentageText}>100%</Text>
-                  </View>
-                </View>
-                <View style={styles.insideBinContainer}>
-                  <View style={styles.nameIcons}>
-                    <Text style={styles.binNameText}>
-                      {binData.trashbinName}
-                    </Text>
-                    <View style={styles.editDeleteView}>
-                      <TouchableOpacity
-                        onPress={() =>
-                          navigation.navigate("EditBin", {
-                            binDocId: binData.id,
-                            binId: binData.trashbinId,
-                            binName: binData.trashbinName,
-                            binLocation: binData.trashbinLocation,
-                          })
-                        }
-                      >
-                        <MaterialCommunityIcons
-                          name="pencil"
-                          size={21}
-                          color="#092635"
-                          style={{ marginRight: 5 }}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={() =>
-                          handleTrashIconClick(binData.trashbinName, binData.id)
-                        }
-                      >
-                        <MaterialCommunityIcons
-                          name="delete"
-                          size={23}
-                          color="#092635"
-                        />
-                      </TouchableOpacity>
+        {loading ? (
+          <LoadingIndicator />
+        ) : (
+          <>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={{ marginBottom: 20, marginTop: 10 }}
+            >
+              {debouncedTrashbinData && debouncedTrashbinData.length > 0 ? (
+                debouncedTrashbinData.map((binData, index) => (
+                  <View key={index} style={styles.binContainer}>
+                    <View style={styles.bigBinView}>
+                      <FontAwesome5 name="trash" size={135} color="#092635" />
+                      <View style={styles.percentageView}>
+                        <Text style={styles.percentageText}>100%</Text>
+                      </View>
                     </View>
-                  </View>
-                  <View style={styles.labelDataView}>
-                    <Text style={styles.idLabel}>Bin ID:</Text>
-                    <View style={styles.iconDataView}>
-                      <MaterialCommunityIcons
-                        name="page-layout-sidebar-left"
-                        size={20}
-                        color="black"
-                        style={{ marginRight: 2 }}
-                      />
-                      <Text style={styles.idData}>{binData.trashbinId}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.labelDataView}>
-                    <Text style={styles.idLabel}>Location:</Text>
-                    <View style={styles.iconDataView}>
-                      <Entypo
-                        name="location"
-                        size={20}
-                        color="black"
-                        style={{ marginRight: 2 }}
-                      />
-                      <Text style={styles.idData}>
-                        {binData.trashbinLocation}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.labelDataView}>
-                    <Text style={styles.idLabel}>Capacity Level:</Text>
-                    <View style={styles.iconDataView}>
-                      <MaterialIcons
-                        name="storage"
-                        size={20}
-                        color="black"
-                        style={{ marginRight: 2 }}
-                      />
-                      {binData.capacityLevel !== undefined && (
-                        <Text style={styles.idDataCapacityText}>
-                          {binData.capacityLevel}
+                    <View style={styles.insideBinContainer}>
+                      <View style={styles.nameIcons}>
+                        <Text style={styles.binNameText}>
+                          {binData.trashbinName}
                         </Text>
-                      )}
+                        <View style={styles.editDeleteView}>
+                          <TouchableOpacity
+                            onPress={() =>
+                              navigation.navigate("EditBin", {
+                                binDocId: binData.id,
+                                binId: binData.trashbinId,
+                                binName: binData.trashbinName,
+                                binLocation: binData.trashbinLocation,
+                              })
+                            }
+                          >
+                            <MaterialCommunityIcons
+                              name="pencil"
+                              size={21}
+                              color="#092635"
+                              style={{ marginRight: 5 }}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() =>
+                              handleTrashIconClick(
+                                binData.trashbinName,
+                                binData.id
+                              )
+                            }
+                          >
+                            <MaterialCommunityIcons
+                              name="delete"
+                              size={23}
+                              color="#092635"
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                      <View style={styles.labelDataView}>
+                        <Text style={styles.idLabel}>Bin ID:</Text>
+                        <View style={styles.iconDataView}>
+                          <MaterialCommunityIcons
+                            name="page-layout-sidebar-left"
+                            size={20}
+                            color="black"
+                            style={{ marginRight: 2 }}
+                          />
+                          <Text style={styles.idData}>
+                            {binData.trashbinId}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.labelDataView}>
+                        <Text style={styles.idLabel}>Location:</Text>
+                        <View style={styles.iconDataView}>
+                          <Entypo
+                            name="location"
+                            size={20}
+                            color="black"
+                            style={{ marginRight: 2 }}
+                          />
+                          <Text style={styles.idData}>
+                            {binData.trashbinLocation}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.labelDataView}>
+                        <Text style={styles.idLabel}>Capacity Level:</Text>
+                        <View style={styles.iconDataView}>
+                          <MaterialIcons
+                            name="storage"
+                            size={20}
+                            color="black"
+                            style={{ marginRight: 2 }}
+                          />
+                          {binData.capacityLevel !== undefined && (
+                            <Text style={styles.idDataCapacityText}>
+                              {binData.capacityLevel}
+                            </Text>
+                          )}
+                        </View>
+                      </View>
                     </View>
                   </View>
+                ))
+              ) : (
+                <View className="flex flex-row justify-center align-middle mt-3">
+                  <Text className="font-bold text-xl mt-4">No data found</Text>
                 </View>
-              </View>
-            ))}
-        </ScrollView>
+              )}
+            </ScrollView>
+          </>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -273,7 +275,7 @@ export default function HomeScreen() {
 // Styles for the modal
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#092635",
+    backgroundColor: "#EEF0E5",
     flex: 1,
     position: "relative",
   },
@@ -281,12 +283,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignSelf: "center",
-    width: "85%",
-    marginTop: 20,
+    width: "100%",
+    backgroundColor: "#163020",
+    padding: 10,
   },
   titleText1: {
     color: "white",
     fontSize: 20,
+    marginLeft: 20,
   },
   titleText2: {
     color: "#9EC8B9",
@@ -299,9 +303,10 @@ const styles = StyleSheet.create({
   topIconView: {
     flexDirection: "row",
     alignItems: "center",
+    marginRight: 12,
   },
   screenTitleDiv: {
-    borderColor: "#FFFCFC",
+    borderColor: "#000",
     borderWidth: 1,
     width: "85%",
     alignSelf: "center",
@@ -311,11 +316,11 @@ const styles = StyleSheet.create({
   screenTitleText: {
     textAlign: "center",
     fontSize: 18,
-    color: "#FFFFFF",
+    color: "#000",
   },
   addDiv: {
     flexDirection: "row",
-    backgroundColor: "#9EC8B9",
+    backgroundColor: "#B6C4B6",
     paddingTop: 15,
     paddingBottom: 15,
     paddingLeft: 15,
@@ -427,4 +432,10 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
   },
+  // profilePicture: {
+  //   width: 38,
+  //   height: 38,
+  //   borderRadius: 75,
+  //   borderWidth: 4,
+  // },
 });

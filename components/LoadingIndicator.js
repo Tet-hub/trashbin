@@ -5,7 +5,7 @@ const LoadingIndicator = () => {
   return (
     <SafeAreaView className="flex-1 flex-row justify-center item-center">
       <View className="flex justify-center item-center">
-        <ActivityIndicator size="large" color="#0000ff" style={`mr-4`} />
+        <ActivityIndicator size="large" color="#163020" style={`mr-4`} />
       </View>
     </SafeAreaView>
   );

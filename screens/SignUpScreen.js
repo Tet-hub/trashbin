@@ -8,6 +8,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../config/firebase";
 import { collection, setDoc, doc } from "firebase/firestore";
 import { ArrowIcon } from "../components/ArrowIcon";
+import LoadingIndicator from "../components/LoadingIndicator";
 
 export default function SignUpScreen() {
   const navigation = useNavigation();
@@ -18,6 +19,7 @@ export default function SignUpScreen() {
   const [nameError, setNameError] = useState("");
   const [Emailerror, setEmailError] = useState("");
   const [PasswordError, setPasswordError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setError("");
@@ -50,6 +52,7 @@ export default function SignUpScreen() {
     }
 
     if (email && password) {
+      setLoading(true);
       try {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
@@ -74,6 +77,8 @@ export default function SignUpScreen() {
           setError("Signup error", error);
           console.log("signup error", err);
         }
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -83,77 +88,85 @@ export default function SignUpScreen() {
       className="flex-1 bg-white"
       style={{ backgroundColor: themeColors.bg }}
     >
-      <SafeAreaView className="flex">
-        <View className="flex-row justify-start bg-[#163020] p-2">
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            className="p-2 rounded-tr-2xl rounded-bl-2xl"
+      {loading ? (
+        <LoadingIndicator />
+      ) : (
+        <>
+          <SafeAreaView className="flex">
+            <View className="flex-row justify-start bg-[#163020] p-2">
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                className="p-2 rounded-tr-2xl rounded-bl-2xl"
+              >
+                <ArrowIcon />
+              </TouchableOpacity>
+            </View>
+            <View className="flex-row justify-center my-1">
+              <Image
+                source={require("../assets/images/trashbin_signup-removebg-preview.png")}
+                style={{ width: 150, height: 150 }}
+              />
+            </View>
+          </SafeAreaView>
+          <View
+            className="flex-1 bg-white px-8 pt-3"
+            style={{ borderTopLeftRadius: 50, borderTopRightRadius: 50 }}
           >
-            <ArrowIcon />
-          </TouchableOpacity>
-        </View>
-        <View className="flex-row justify-center my-1">
-          <Image
-            source={require("../assets/images/trashbin_signup-removebg-preview.png")}
-            style={{ width: 150, height: 150 }}
-          />
-        </View>
-      </SafeAreaView>
-      <View
-        className="flex-1 bg-white px-8 pt-3"
-        style={{ borderTopLeftRadius: 50, borderTopRightRadius: 50 }}
-      >
-        <Text className="text-red-700 ml-4 p font-bold text-center">
-          {error}
-        </Text>
-        <View className="form space-y-2">
-          <Text className="text-gray-700 ml-1 font-semibold">Name</Text>
-          <TextInput
-            className="p-4 bg-gray-100 text-gray-700 rounded-2xl"
-            value={name}
-            onChangeText={(value) => setName(value)}
-            placeholder="Enter Name"
-          />
-          <Text className="text-red-700 p font-bold ml-4">{nameError}</Text>
-          <Text className="text-gray-700 ml-1 font-semibold">
-            Email Address
-          </Text>
-          <TextInput
-            className="p-4 bg-gray-100 text-gray-700 rounded-2xl"
-            value={email}
-            onChangeText={(value) => setEmail(value)}
-            placeholder="Enter Email"
-          />
-          <Text className="text-red-700 ml-4 p font-bold">{Emailerror}</Text>
-          <Text className="text-gray-700 ml-1 font-semibold">Password</Text>
-          <TextInput
-            className="p-4 bg-gray-100 text-gray-700 rounded-2xl"
-            secureTextEntry
-            value={password}
-            onChangeText={(value) => setPassword(value)}
-            placeholder="Enter Password"
-          />
-          <Text className="text-red-700 ml-4 p font-bold mb-2">
-            {PasswordError}
-          </Text>
-          <TouchableOpacity
-            className="py-3 bg-[#B6C4B6] rounded-xl"
-            onPress={handleSubmit}
-          >
-            <Text className="text-xl font-bold text-center text-gray-700">
-              Sign Up
+            <Text className="text-red-700 ml-4 p font-bold text-center">
+              {error}
             </Text>
-          </TouchableOpacity>
-        </View>
-        <View className="flex-row justify-center mt-7">
-          <Text className="text-gray-500 font-semibold">
-            Already have an account?
-          </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-            <Text className="font-semibold text-[#304D30]"> Login</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            <View className="form space-y-2">
+              <Text className="text-gray-700 ml-1 font-semibold">Name</Text>
+              <TextInput
+                className="p-4 bg-gray-100 text-gray-700 rounded-2xl"
+                value={name}
+                onChangeText={(value) => setName(value)}
+                placeholder="Enter Name"
+              />
+              <Text className="text-red-700 p font-bold ml-4">{nameError}</Text>
+              <Text className="text-gray-700 ml-1 font-semibold">
+                Email Address
+              </Text>
+              <TextInput
+                className="p-4 bg-gray-100 text-gray-700 rounded-2xl"
+                value={email}
+                onChangeText={(value) => setEmail(value)}
+                placeholder="Enter Email"
+              />
+              <Text className="text-red-700 ml-4 p font-bold">
+                {Emailerror}
+              </Text>
+              <Text className="text-gray-700 ml-1 font-semibold">Password</Text>
+              <TextInput
+                className="p-4 bg-gray-100 text-gray-700 rounded-2xl"
+                secureTextEntry
+                value={password}
+                onChangeText={(value) => setPassword(value)}
+                placeholder="Enter Password"
+              />
+              <Text className="text-red-700 ml-4 p font-bold mb-2">
+                {PasswordError}
+              </Text>
+              <TouchableOpacity
+                className="py-3 bg-[#B6C4B6] rounded-xl"
+                onPress={handleSubmit}
+              >
+                <Text className="text-xl font-bold text-center text-gray-700">
+                  Sign Up
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View className="flex-row justify-center mt-7">
+              <Text className="text-gray-500 font-semibold">
+                Already have an account?
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                <Text className="font-semibold text-[#304D30]"> Login</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </>
+      )}
     </View>
   );
 }
