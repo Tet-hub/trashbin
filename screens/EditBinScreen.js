@@ -14,7 +14,7 @@ import { signOut } from "firebase/auth";
 import { auth, db } from "../config/firebase";
 import { getDatabase, ref, child, get } from "firebase/database";
 import { getCurrentUserUid } from "../service/getCurrentUserId";
-import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
+import { collection, query, doc, updateDoc } from "firebase/firestore";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AntDesign from "react-native-vector-icons/AntDesign";
@@ -26,10 +26,16 @@ import {
   NavigationHelpersContext,
   useNavigation,
 } from "@react-navigation/native";
-export default function AddBinScreen() {
-  const [trashbinId, setTrashbinId] = useState("");
-  const [trashbinName, setTrashbinName] = useState("");
-  const [trashbinLoc, setTrashbinLoc] = useState("");
+export default function EditBinScreen({ route }) {
+  const [trashbinDocId, setTrashbinDocId] = useState(
+    route.params?.binDocId ?? ""
+  );
+  const [trashbinId, setTrashbinId] = useState(route.params?.binId ?? "");
+  const [trashbinName, setTrashbinName] = useState(route.params?.binName ?? "");
+  const [trashbinLoc, setTrashbinLoc] = useState(
+    route.params?.binLocation ?? ""
+  );
+
   const currentUserUid = getCurrentUserUid();
   const navigation = useNavigation();
   const [errorText, setErrorText] = useState("");
@@ -43,16 +49,11 @@ export default function AddBinScreen() {
     }, 5000); // Adjust the time as needed
   };
   // Function to add data to the database
-  const handleAddData = async () => {
+  const handleSaveData = async () => {
     try {
       // Validation for empty bin name
       if (trashbinName.trim() === "") {
         displayError("Fill in bin name");
-        return;
-      }
-      // Validation for empty bin id
-      if (trashbinId.trim() === "") {
-        displayError("Fill in bin id");
         return;
       }
       // Validation for empty location
@@ -60,41 +61,16 @@ export default function AddBinScreen() {
         displayError("Fill in bin location");
         return;
       }
-      const dbRef = ref(getDatabase());
-      // Access the path to the trashbin using child() method
-      const binRef = child(dbRef, `trashbin/${trashbinId}`);
-      const binSnapshot = await get(binRef);
 
-      if (!binSnapshot.exists()) {
-        displayError("Bin doesn't exist");
-        return;
-      }
+      const trashbinRef = doc(db, "trashbin", trashbinDocId);
 
-      const trashbinCollectionFS = collection(db, "trashbin");
-      const querySnapshot = await getDocs(
-        query(
-          trashbinCollectionFS,
-          where("trashbinId", "==", trashbinId),
-          where("userId", "==", currentUserUid)
-        )
-      );
-
-      if (!querySnapshot.empty) {
-        displayError("You already set this bin ID");
-        return;
-      }
-
-      const trashbinCollection = collection(db, "trashbin");
-
-      const newData = {
-        trashbinId: trashbinId,
-        userId: currentUserUid,
+      const updatedData = {
         trashbinName: trashbinName,
         trashbinLocation: trashbinLoc,
       };
 
-      await addDoc(trashbinCollection, newData);
-      ToastAndroid.show("Bin created successfully!", ToastAndroid.SHORT);
+      await updateDoc(trashbinRef, updatedData);
+      ToastAndroid.show("Bin updated successfully!", ToastAndroid.SHORT);
       navigation.navigate("Home");
     } catch (error) {
       console.error("Error adding data: ", error);
@@ -104,13 +80,14 @@ export default function AddBinScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="white" barStyle="dark-content" />
-      <Text style={styles.addBinText}>Add Bin</Text>
+      <Text style={styles.addBinText}>Edit Bin</Text>
       {errorText !== "" && <Text style={styles.errorText}>{errorText}</Text>}
       <View style={styles.bodyDiv}>
         <View style={styles.inputView}>
           <Text style={styles.textLabel}>Bin Name: </Text>
           <View style={styles.binInputView}>
             <TextInput
+              value={trashbinName}
               onChangeText={(text) => setTrashbinName(text)}
               style={styles.placeholderStyle}
               placeholder="Enter bin name..."
@@ -122,6 +99,8 @@ export default function AddBinScreen() {
           <Text style={styles.textLabel}>Bin ID: </Text>
           <View style={styles.binInputViewID}>
             <TextInput
+              value={trashbinId}
+              editable={false}
               onChangeText={(text) => setTrashbinId(text)}
               style={styles.placeholderStyle}
               placeholder="Enter bin id..."
@@ -133,6 +112,7 @@ export default function AddBinScreen() {
           <Text style={styles.textLabel}>Location: </Text>
           <View style={styles.binInputViewLoc}>
             <TextInput
+              value={trashbinLoc}
               onChangeText={(text) => setTrashbinLoc(text)}
               style={styles.placeholderStyle}
               placeholder="Enter bin location..."
@@ -140,8 +120,8 @@ export default function AddBinScreen() {
             />
           </View>
         </View>
-        <TouchableOpacity style={styles.addButtonTO} onPress={handleAddData}>
-          <Text style={styles.addBinButton}>ADD</Text>
+        <TouchableOpacity style={styles.addButtonTO} onPress={handleSaveData}>
+          <Text style={styles.addBinButton}>SAVE</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

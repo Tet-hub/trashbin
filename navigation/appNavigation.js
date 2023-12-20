@@ -7,6 +7,7 @@ import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import AddBinScreen from "../screens/AddBinScreen";
+import EditBinScreen from "../screens/EditBinScreen";
 import NotificationScreen from "../screens/NotificationScreen";
 import MenuScreen from "../screens/MenuScreen";
 import useAuth from "../hooks/useAuth";
@@ -55,6 +56,17 @@ export default function AppNavigation() {
                   headerTintColor: "#9EC8B9",
                 }}
                 component={AddBinScreen}
+              />
+              <Stack.Screen
+                name="EditBin"
+                options={{
+                  headerTitle: () => <View></View>,
+                  headerStyle: {
+                    backgroundColor: "#092635",
+                  },
+                  headerTintColor: "#9EC8B9",
+                }}
+                component={EditBinScreen}
               />
               <Stack.Screen
                 name="Notification"
