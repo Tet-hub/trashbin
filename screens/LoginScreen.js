@@ -6,6 +6,7 @@ import { themeColors } from "../theme";
 import { useNavigation } from "@react-navigation/native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
+import { ArrowIcon } from "../components/ArrowIcon";
 
 export default function LoginScreen() {
   const navigation = useNavigation();
@@ -61,12 +62,12 @@ export default function LoginScreen() {
       style={{ backgroundColor: themeColors.bg }}
     >
       <SafeAreaView className="flex ">
-        <View className="flex-row justify-start">
+        <View className="flex-row justify-start bg-[#163020] p-2">
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="bg-[#91C8E4] p-2 rounded-tr-2xl rounded-bl-2xl ml-4"
+            className="p-2 rounded-tr-2xl rounded-bl-2xl"
           >
-            <ArrowLeftIcon size="20" color="black" />
+            <ArrowIcon />
           </TouchableOpacity>
         </View>
         <View className="flex-row justify-center">
@@ -102,7 +103,7 @@ export default function LoginScreen() {
           />
           <Text className="text-red-700 ml-4 p font-bold">{PasswordError}</Text>
           <TouchableOpacity
-            className="py-3 bg-[#91C8E4] rounded-xl"
+            className="py-3 bg-[#B6C4B6] rounded-xl"
             onPress={handleSubmit}
           >
             <Text className="text-xl font-bold text-center text-gray-700">
@@ -112,10 +113,10 @@ export default function LoginScreen() {
         </View>
         <View className="flex-row justify-center mt-7">
           <Text className="text-gray-500 font-semibold">
-            Don't have an account?
+            Don't have an account?{" "}
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
-            <Text className="font-semibold text-[#749BC2]"> Sign Up</Text>
+            <Text className="font-semibold text-[#304D30]"> Sign Up</Text>
           </TouchableOpacity>
         </View>
       </View>

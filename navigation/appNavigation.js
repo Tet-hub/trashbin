@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { View } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
@@ -12,7 +12,9 @@ import NotificationScreen from "../screens/NotificationScreen";
 import MenuScreen from "../screens/MenuScreen";
 import useAuth from "../hooks/useAuth";
 import LoadingIndicator from "../components/LoadingIndicator";
-
+import { auth } from "../config/firebase";
+import { signOut } from "firebase/auth";
+import { LogoutIcon } from "../components/LogoutIcon";
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigation() {
@@ -35,6 +37,10 @@ export default function AppNavigation() {
     return <LoadingIndicator />;
   }
 
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
+
   return (
     <NavigationContainer>
       {appReady ? (
@@ -51,9 +57,9 @@ export default function AppNavigation() {
                 options={{
                   headerTitle: () => <View></View>,
                   headerStyle: {
-                    backgroundColor: "#092635",
+                    backgroundColor: "#163020",
                   },
-                  headerTintColor: "#9EC8B9",
+                  headerTintColor: "#EEF0E5",
                 }}
                 component={AddBinScreen}
               />
@@ -73,9 +79,9 @@ export default function AppNavigation() {
                 options={{
                   headerTitle: () => <View></View>,
                   headerStyle: {
-                    backgroundColor: "#092635",
+                    backgroundColor: "#163020",
                   },
-                  headerTintColor: "#9EC8B9",
+                  headerTintColor: "#EEF0E5",
                 }}
                 component={NotificationScreen}
               />
@@ -84,9 +90,14 @@ export default function AppNavigation() {
                 options={{
                   headerTitle: () => <View></View>,
                   headerStyle: {
-                    backgroundColor: "#092635",
+                    backgroundColor: "#163020",
                   },
-                  headerTintColor: "#9EC8B9",
+                  headerTintColor: "#EEF0E5",
+                  headerRight: () => (
+                    <TouchableOpacity onPress={handleLogout}>
+                      <LogoutIcon />
+                    </TouchableOpacity>
+                  ),
                 }}
                 component={MenuScreen}
               />
