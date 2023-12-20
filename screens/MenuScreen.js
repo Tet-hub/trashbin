@@ -7,9 +7,9 @@ import {
   View,
   StatusBar,
   Image,
+  SafeAreaView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { signOut } from "firebase/auth";
 import { auth, db, getAuth } from "../config/firebase";
 import {

@@ -8,8 +8,8 @@ import {
   View,
   StatusBar,
   ToastAndroid,
+  SafeAreaView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { auth, db } from "../config/firebase";
 import { getDatabase, ref, child, get } from "firebase/database";
 import { getCurrentUserUid } from "../service/getCurrentUserId";

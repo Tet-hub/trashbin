@@ -8,8 +8,8 @@ import {
   View,
   StatusBar,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { signOut } from "firebase/auth";
 import { auth, db } from "../config/firebase";
 import { getDatabase, ref, onValue, off } from "firebase/database";
@@ -42,6 +42,20 @@ export default function HomeScreen() {
     useState(trashbinData);
 
   const [loading, setLoading] = useState(false);
+
+  const checkCapacityLevel = () => {
+    if (debouncedTrashbinData && debouncedTrashbinData.length > 0) {
+      debouncedTrashbinData.forEach((binData) => {
+        if (binData.capacityLevel !== undefined && binData.capacityLevel <= 4) {
+          setTimeout(() => {
+            Alert.alert("Garbage Bin Full", "Time to take out the trash!");
+          }, 1000);
+        }
+      });
+    }
+  };
+
+  checkCapacityLevel();
 
   useEffect(() => {
     setLoading(true);
@@ -168,9 +182,34 @@ export default function HomeScreen() {
                 debouncedTrashbinData.map((binData, index) => (
                   <View key={index} style={styles.binContainer}>
                     <View style={styles.bigBinView}>
-                      <FontAwesome5 name="trash" size={135} color="#092635" />
+                      <FontAwesome5 name="trash" size={135} color="#163020" />
                       <View style={styles.percentageView}>
-                        <Text style={styles.percentageText}>100%</Text>
+                        {binData.capacityLevel !== undefined &&
+                          (binData.capacityLevel <= 4 ||
+                            binData.capacityLevel >= 50) && (
+                            <Text style={styles.idDataCapacityTextFull}>
+                              FULL!
+                            </Text>
+                          )}
+                        {binData.capacityLevel !== undefined &&
+                          binData.capacityLevel > 4 &&
+                          binData.capacityLevel <= 10 && (
+                            <Text style={styles.idDataCapacityTextHigh}>
+                              HIGH
+                            </Text>
+                          )}
+                        {binData.capacityLevel !== undefined &&
+                          binData.capacityLevel > 10 &&
+                          binData.capacityLevel <= 15 && (
+                            <Text style={styles.idDataCapacityTextMed}>
+                              MED
+                            </Text>
+                          )}
+                        {binData.capacityLevel !== undefined &&
+                          binData.capacityLevel > 15 &&
+                          binData.capacityLevel <= 40 && (
+                            <Text style={styles.idDataCapacityText}>LOW</Text>
+                          )}
                       </View>
                     </View>
                     <View style={styles.insideBinContainer}>
@@ -238,22 +277,6 @@ export default function HomeScreen() {
                           <Text style={styles.idData}>
                             {binData.trashbinLocation}
                           </Text>
-                        </View>
-                      </View>
-                      <View style={styles.labelDataView}>
-                        <Text style={styles.idLabel}>Capacity Level:</Text>
-                        <View style={styles.iconDataView}>
-                          <MaterialIcons
-                            name="storage"
-                            size={20}
-                            color="black"
-                            style={{ marginRight: 2 }}
-                          />
-                          {binData.capacityLevel !== undefined && (
-                            <Text style={styles.idDataCapacityText}>
-                              {binData.capacityLevel}
-                            </Text>
-                          )}
                         </View>
                       </View>
                     </View>
@@ -358,6 +381,7 @@ const styles = StyleSheet.create({
   binNameText: {
     fontSize: 16,
     fontWeight: "500",
+    color: "#163020",
   },
   idLabel: {
     fontSize: 14,
@@ -372,18 +396,34 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   idDataCapacityText: {
-    color: "#FF0000",
-    fontWeight: "500",
+    color: "green",
+    fontWeight: "600",
+    fontSize: 17,
+  },
+  idDataCapacityTextMed: {
+    color: "yellow",
+    fontWeight: "600",
+    fontSize: 17,
+  },
+  idDataCapacityTextHigh: {
+    color: "red",
+    fontWeight: "600",
+    fontSize: 17,
+  },
+  idDataCapacityTextFull: {
+    color: "red",
+    fontWeight: "600",
+    fontSize: 17,
   },
   bigBinView: {
     position: "absolute",
     left: -60,
-    top: 40,
+    top: 12,
   },
   percentageView: {
     position: "absolute",
     top: 70,
-    left: 37,
+    left: 38,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -432,10 +472,4 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
   },
-  // profilePicture: {
-  //   width: 38,
-  //   height: 38,
-  //   borderRadius: 75,
-  //   borderWidth: 4,
-  // },
 });

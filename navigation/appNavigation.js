@@ -14,7 +14,7 @@ import useAuth from "../hooks/useAuth";
 import LoadingIndicator from "../components/LoadingIndicator";
 import { auth } from "../config/firebase";
 import { signOut } from "firebase/auth";
-import { LogoutIcon } from "../components/LogoutIcon";
+import Ionicons from "react-native-vector-icons/Ionicons";
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigation() {
@@ -103,7 +103,12 @@ export default function AppNavigation() {
                   headerTintColor: "#EEF0E5",
                   headerRight: () => (
                     <TouchableOpacity onPress={handleLogout}>
-                      <LogoutIcon />
+                      <Ionicons
+                        name="log-out"
+                        size={24}
+                        color="white"
+                        style={{ marginRight: 5 }}
+                      />
                     </TouchableOpacity>
                   ),
                 }}

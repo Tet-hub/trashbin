@@ -1,27 +1,26 @@
 {
   "expo": {
-    "name": "trashbin",
-    "slug": "trashbin",
+    "name": "Konbini",
+    "slug": "Konbini",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/konbini-icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/images/konbini.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/images/konbini.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.trashbin_arduino.trashbin"
     },
     "web": {
       "favicon": "./assets/favicon.png"
