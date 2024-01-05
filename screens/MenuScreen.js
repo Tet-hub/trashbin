@@ -202,7 +202,7 @@ export default function MenuScreen() {
           onChangeEmail(fetchedData[0].email);
         }
       } catch (error) {
-        console.error("Error fetching data: ", error);
+        console.log("Error fetching data: ", error);
       } finally {
         setLoading(false);
       }

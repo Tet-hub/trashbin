@@ -131,7 +131,7 @@ export default function HomeScreen() {
       await deleteDoc(trashbinRef);
       ToastAndroid.show("Trashbin deleted successfully!", ToastAndroid.SHORT);
     } catch (error) {
-      console.error("Error deleting trashbin:", error);
+      console.log("Error deleting trashbin:", error);
       ToastAndroid.show("Error deleting trashbin", ToastAndroid.SHORT);
     }
   };
@@ -231,7 +231,7 @@ export default function HomeScreen() {
                             <MaterialCommunityIcons
                               name="pencil"
                               size={21}
-                              color="#092635"
+                              color="#739573"
                               style={{ marginRight: 5 }}
                             />
                           </TouchableOpacity>
@@ -246,7 +246,7 @@ export default function HomeScreen() {
                             <MaterialCommunityIcons
                               name="delete"
                               size={23}
-                              color="#092635"
+                              color="#739573"
                             />
                           </TouchableOpacity>
                         </View>
@@ -380,9 +380,12 @@ const styles = StyleSheet.create({
   },
   binNameText: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "800",
     color: "#163020",
+    maxWidth: 100,
+    overflow: "hidden",
   },
+
   idLabel: {
     fontSize: 14,
     fontWeight: "300",
@@ -396,7 +399,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   idDataCapacityText: {
-    color: "green",
+    color: "#4CAF50",
     fontWeight: "600",
     fontSize: 17,
   },

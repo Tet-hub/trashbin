@@ -89,7 +89,7 @@ export default function AddBinScreen() {
       await addDoc(trashbinCollection, newData);
       ToastAndroid.show("Bin created successfully!", ToastAndroid.SHORT);
     } catch (error) {
-      console.error("Error adding data: ", error);
+      console.log("Error adding data: ", error);
     } finally {
       setIsLoading(false);
     }
